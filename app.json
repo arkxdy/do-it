@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "do-it",
+    "name": "Do-it",
     "slug": "do-it",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -11,7 +11,12 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.anonymous.doit"
+      "package": "com.anonymous.doit",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/DoIt.png",
+        "backgroundColor": "#000000"
+      }
     }
   }
 }
