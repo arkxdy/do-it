@@ -53,11 +53,13 @@ export default function DoIt() {
       const today = new Date().toDateString();
       
       if (lastReset !== today) {
-        const filteredTasks = savedTasks 
-          ? JSON.parse(savedTasks).filter((t: Task) => t.type !== 'daily')
-          : [];
-        setTasks(filteredTasks);
-        await AsyncStorage.setItem('tasks', JSON.stringify(filteredTasks));
+        // Reset only daily tasks to uncompleted state
+        const allTasks = savedTasks ? JSON.parse(savedTasks) : [];
+        const resetTasks = allTasks.map((t: Task) => 
+          t.type === 'daily' ? { ...t, completed: false } : t
+        );
+        setTasks(resetTasks);
+        await AsyncStorage.setItem('tasks', JSON.stringify(resetTasks));
         await AsyncStorage.setItem('lastReset', today);
       }
     } catch (error) {
@@ -259,7 +261,7 @@ export default function DoIt() {
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                   <Globe size={18} color={taskViewType === 'global' ? '#000' : '#fff'} />
-                  <Text style={{ fontWeight: '700', color: taskViewType === 'global' ? '#000' : '#fff' }}>Global</Text>
+                  <Text style={{ fontWeight: '700', color: taskViewType === 'global' ? '#000' : '#fff' }}>Tasks</Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -273,7 +275,7 @@ export default function DoIt() {
                   <Globe size={18} color="#fff" />
                 )}
                 <Text style={{ fontWeight: '600', fontSize: 18, color: '#fff' }}>
-                  {taskViewType === 'daily' ? 'Daily' : 'Global'} Tasks
+                  {taskViewType === 'daily' ? 'Daily' : 'Tasks'} Tasks
                 </Text>
                 <View style={{ marginLeft: 'auto' }}>
                   <Text style={{ color: '#d1d5db', fontSize: 12 }}>{displayTasks.length}</Text>
@@ -282,7 +284,7 @@ export default function DoIt() {
 
               {displayTasks.length === 0 ? (
                 <Text style={{ color: '#6b7280', fontSize: 12, textAlign: 'center', paddingVertical: 32 }}>
-                  No {taskViewType} tasks yet. Create one to get started!
+                  No {taskViewType === 'daily' ? 'daily' : ''} tasks yet. Create one to get started!
                 </Text>
               ) : (
                 <View>
@@ -433,74 +435,74 @@ export default function DoIt() {
         <KeyboardAvoidingView 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{ flex: 1 }}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: '#000', borderTopWidth: 1, borderTopColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <Text style={{ fontSize: 22, fontWeight: '700', color: '#fff' }}>Add New Task</Text>
-              <TouchableOpacity onPress={() => setShowAddModal(false)}>
-                <X size={24} color="#fff" />
-              </TouchableOpacity>
-            </View>
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+            <View style={{ backgroundColor: '#000', borderTopWidth: 1, borderTopColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <Text style={{ fontSize: 22, fontWeight: '700', color: '#fff' }}>Add New Task</Text>
+                <TouchableOpacity onPress={() => setShowAddModal(false)}>
+                  <X size={24} color="#fff" />
+                </TouchableOpacity>
+              </View>
 
-            <TextInput
-              value={newTask}
-              onChangeText={setNewTask}
-              placeholder="What do you want to do?"
-              placeholderTextColor="#6b7280"
-              style={{ width: '100%', backgroundColor: '#000', borderWidth: 1, borderColor: '#fff', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12, color: '#fff', marginBottom: 16, fontSize: 16 }}
-              autoFocus
-            />
+              <TextInput
+                value={newTask}
+                onChangeText={setNewTask}
+                placeholder="What do you want to do?"
+                placeholderTextColor="#6b7280"
+                style={{ width: '100%', backgroundColor: '#000', borderWidth: 1, borderColor: '#fff', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12, color: '#fff', marginBottom: 16, fontSize: 16 }}
+                autoFocus
+              />
 
-            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
-              <TouchableOpacity
-                onPress={() => setTaskType('daily')}
-                style={{
-                  flex: 1,
-                  paddingVertical: 12,
-                  paddingHorizontal: 16,
-                  borderRadius: 8,
-                  backgroundColor: taskType === 'daily' ? '#fff' : 'transparent',
-                  borderWidth: taskType === 'daily' ? 0 : 1,
-                  borderColor: '#fff'
-                }}
-              >
-                <Text style={{ fontWeight: '700', textAlign: 'center', color: taskType === 'daily' ? '#000' : '#fff' }}>Daily</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setTaskType('global')}
-                style={{
-                  flex: 1,
-                  paddingVertical: 12,
-                  paddingHorizontal: 16,
-                  borderRadius: 8,
-                  backgroundColor: taskType === 'global' ? '#fff' : 'transparent',
-                  borderWidth: taskType === 'global' ? 0 : 1,
-                  borderColor: '#fff'
-                }}
-              >
-                <Text style={{ fontWeight: '700', textAlign: 'center', color: taskType === 'global' ? '#000' : '#fff' }}>Global</Text>
-              </TouchableOpacity>
-            </View>
+              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+                <TouchableOpacity
+                  onPress={() => setTaskType('daily')}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                    borderRadius: 8,
+                    backgroundColor: taskType === 'daily' ? '#fff' : 'transparent',
+                    borderWidth: taskType === 'daily' ? 0 : 1,
+                    borderColor: '#fff'
+                  }}
+                >
+                  <Text style={{ fontWeight: '700', textAlign: 'center', color: taskType === 'daily' ? '#000' : '#fff' }}>Daily</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setTaskType('global')}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                    borderRadius: 8,
+                    backgroundColor: taskType === 'global' ? '#fff' : 'transparent',
+                    borderWidth: taskType === 'global' ? 0 : 1,
+                    borderColor: '#fff'
+                  }}
+                >
+                  <Text style={{ fontWeight: '700', textAlign: 'center', color: taskType === 'global' ? '#000' : '#fff' }}>Task</Text>
+                </TouchableOpacity>
+              </View>
 
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              <TouchableOpacity
-                onPress={() => setShowAddModal(false)}
-                style={{ flex: 1, borderWidth: 1, borderColor: '#fff', borderRadius: 8, paddingVertical: 12 }}
-              >
-                <Text style={{ color: '#fff', fontWeight: '700', textAlign: 'center' }}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={addTask}
-                style={{ flex: 1, backgroundColor: '#fff', borderRadius: 8, paddingVertical: 12 }}
-              >
-                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                  <Plus size={20} color="#000" />
-                  <Text style={{ color: '#000', fontWeight: '700' }}>Add</Text>
-                </View>
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <TouchableOpacity
+                  onPress={() => setShowAddModal(false)}
+                  style={{ flex: 1, borderWidth: 1, borderColor: '#fff', borderRadius: 8, paddingVertical: 12 }}
+                >
+                  <Text style={{ color: '#fff', fontWeight: '700', textAlign: 'center' }}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={addTask}
+                  style={{ flex: 1, backgroundColor: '#fff', borderRadius: 8, paddingVertical: 12 }}
+                >
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                    <Plus size={20} color="#000" />
+                    <Text style={{ color: '#000', fontWeight: '700' }}>Add</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
         </KeyboardAvoidingView>
       </Modal>
     </View>
